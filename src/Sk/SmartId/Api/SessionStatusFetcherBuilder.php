@@ -39,6 +39,11 @@ class SessionStatusFetcherBuilder
   private $networkInterface;
 
   /**
+   * @var string
+   */
+  private $proxy;
+
+  /**
    * @param SmartIdConnector $connector
    */
   public function __construct( SmartIdConnector $connector )
@@ -102,6 +107,16 @@ class SessionStatusFetcherBuilder
   }
 
   /**
+   * @param string $proxy
+   * @return $this
+   */
+  public function withProxy( $proxy )
+  {
+    $this->proxy = $proxy;
+    return $this;
+  }
+
+  /**
    * @return Data\SmartIdAuthenticationResponse
    */
   public function getAuthenticationResponse()
@@ -118,7 +133,8 @@ class SessionStatusFetcherBuilder
     $sessionStatusFetcher = new SessionStatusFetcher( $this->connector );
     $sessionStatusFetcher->setSessionId( $this->sessionId )
         ->setSessionStatusResponseSocketTimeoutMs( $this->sessionStatusResponseSocketTimeoutMs )
-        ->setNetworkInterface( $this->networkInterface );
+        ->setNetworkInterface( $this->networkInterface )
+        ->setProxy( $this->proxy );
     if ( $this->dataToSign )
     {
       $sessionStatusFetcher->setDataToSign( $this->dataToSign );

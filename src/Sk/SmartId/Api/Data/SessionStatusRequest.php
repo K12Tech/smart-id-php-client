@@ -20,6 +20,11 @@ class SessionStatusRequest
   private $networkInterface;
 
   /**
+   * @var string
+   */
+  private $proxy;
+
+  /**
    * @param string $sessionId
    */
   public function __construct( $sessionId )
@@ -72,6 +77,16 @@ class SessionStatusRequest
   }
 
   /**
+   * @param string $proxy
+   * @return $this
+   */
+  public function setProxy( $proxy )
+  {
+    $this->proxy = $proxy;
+    return $this;
+  }
+
+  /**
    * @return array
    */
   public function toArray()
@@ -86,6 +101,11 @@ class SessionStatusRequest
     if ( isset( $this->networkInterface ) )
     {
       $requiredArray[ 'networkInterface' ] = $this->networkInterface;
+    }
+
+    if ( isset( $this->proxy ) )
+    {
+      $requiredArray[ 'proxy' ] = $this->proxy;
     }
 
     return $requiredArray;

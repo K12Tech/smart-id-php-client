@@ -31,6 +31,11 @@ abstract class SmartIdRequestBuilder
   private $networkInterface;
 
   /**
+   * @var string
+   */
+  private $proxy;
+
+  /**
    * @param SmartIdConnector $connector
    * @param SessionStatusPoller $sessionStatusPoller
    */
@@ -67,6 +72,16 @@ abstract class SmartIdRequestBuilder
   public function withNetworkInterface( $networkInterface )
   {
     $this->networkInterface = $networkInterface;
+    return $this;
+  }
+
+  /**
+   * @param string $proxy
+   * @return $this
+   */
+  public function withProxy( $proxy )
+  {
+    $this->proxy = $proxy;
     return $this;
   }
 
@@ -108,6 +123,14 @@ abstract class SmartIdRequestBuilder
   public function getNetworkInterface()
   {
     return $this->networkInterface;
+  }
+
+  /**
+   * @return string
+   */
+  public function getProxy()
+  {
+    return $this->proxy;
   }
 
   /**

@@ -48,6 +48,11 @@ class SessionStatusFetcher
   private $networkInterface;
 
   /**
+   * @var string
+   */
+  private $proxy;
+
+  /**
    * @param SmartIdConnector $connector
    */
   public function __construct( SmartIdConnector $connector )
@@ -110,6 +115,16 @@ class SessionStatusFetcher
   public function setNetworkInterface( $networkInterface )
   {
     $this->networkInterface = $networkInterface;
+    return $this;
+  }
+
+    /**
+   * @param string $proxy
+   * @return $this
+   */
+  public function setProxy( $proxy )
+  {
+    $this->proxy = $proxy;
     return $this;
   }
 
@@ -180,7 +195,8 @@ class SessionStatusFetcher
   {
     $request = new SessionStatusRequest( $sessionId );
     $request->setSessionStatusResponseSocketTimeoutMs( $this->sessionStatusResponseSocketTimeoutMs )
-        ->setNetworkInterface( $this->networkInterface );
+        ->setNetworkInterface( $this->networkInterface )
+        ->setProxy( $this->proxy );
     return $request;
   }
 

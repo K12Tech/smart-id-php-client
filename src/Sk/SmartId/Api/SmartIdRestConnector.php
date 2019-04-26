@@ -130,6 +130,7 @@ class SmartIdRestConnector implements SmartIdConnector
   {
     $this->curl = new Curl();
     $this->setNetworkInterface( $params );
+    $this->setProxy( $params );
     $this->curl->curlPost( $url, array(), json_encode( $params ) );
     $this->curl->setCurlParam( CURLOPT_HTTPHEADER, array('content-type: application/json',) );
     return $this->request( $url, $responseType );
@@ -146,6 +147,7 @@ class SmartIdRestConnector implements SmartIdConnector
   {
     $this->curl = new Curl();
     $this->setNetworkInterface( $params );
+    $this->setProxy( $params );
     $this->curl->curlGet( $url, $params );
     return $this->request( $url, $responseType );
   }
@@ -205,6 +207,18 @@ class SmartIdRestConnector implements SmartIdConnector
     {
       $this->curl->setCurlParam( CURLOPT_INTERFACE, $params[ 'networkInterface' ] );
       unset( $params[ 'networkInterface' ] );
+    }
+  }
+
+  /**
+   * @param array $params
+   */
+  private function setProxy( array &$params )
+  {
+    if ( isset( $params[ 'proxy' ] ) )
+    {
+      $this->curl->setCurlParam( CURLOPT_PROXY, $params[ 'proxy' ] );
+      unset( $params[ 'proxy' ] );
     }
   }
 }

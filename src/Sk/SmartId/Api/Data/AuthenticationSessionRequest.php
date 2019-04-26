@@ -21,6 +21,11 @@ class AuthenticationSessionRequest
   /**
    * @var string
    */
+  private $proxy;
+
+  /**
+   * @var string
+   */
   private $certificateLevel;
 
   /**
@@ -94,6 +99,24 @@ class AuthenticationSessionRequest
   public function setNetworkInterface( $networkInterface )
   {
     $this->networkInterface = $networkInterface;
+    return $this;
+  }
+
+  /**
+   * @return string
+   */
+  public function getProxy()
+  {
+    return $this->proxy;
+  }
+
+  /**
+   * @param string $proxy
+   * @return $this
+   */
+  public function setProxy( $proxy )
+  {
+    $this->proxy = $proxy;
     return $this;
   }
 
@@ -217,6 +240,11 @@ class AuthenticationSessionRequest
     if ( isset( $this->networkInterface ) )
     {
       $requiredArray[ 'networkInterface' ] = $this->networkInterface;
+    }
+
+    if ( isset( $this->proxy ) )
+    {
+      $requiredArray[ 'proxy' ] = $this->proxy;
     }
 
     return $requiredArray;
