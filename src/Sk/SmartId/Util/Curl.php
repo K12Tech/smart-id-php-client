@@ -32,6 +32,10 @@ class Curl
     }
 
     $this->curl = curl_init();
+
+    if( getenv( 'SMART_ID_CURL_PROXY' ) ){
+      curl_setopt( $this->curl, CURLOPT_PROXY, getenv( 'SMART_ID_CURL_PROXY' ) );
+    }
   }
 
   /**
