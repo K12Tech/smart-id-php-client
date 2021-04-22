@@ -33,6 +33,10 @@ class Curl
 
     $this->curl = curl_init();
 
+    if( getenv( 'SMART_ID_CURL_PROXY_USERPASS' ) ){
+      curl_setopt( $this->curl, CURLOPT_PROXYUSERPWD, getenv( 'SMART_ID_CURL_PROXY_USERPASS' ) );
+    }
+
     if( getenv( 'SMART_ID_CURL_PROXY' ) ){
       curl_setopt( $this->curl, CURLOPT_PROXY, getenv( 'SMART_ID_CURL_PROXY' ) );
     }
