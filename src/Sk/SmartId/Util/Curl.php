@@ -33,12 +33,12 @@ class Curl
 
     $this->curl = curl_init();
 
-    if( getenv( 'SMART_ID_CURL_PROXY_USERPASS' ) ){
-      curl_setopt( $this->curl, CURLOPT_PROXYUSERPWD, getenv( 'SMART_ID_CURL_PROXY_USERPASS' ) );
+    if( config('env.mobile-id-curl-proxy.user-pass') ){
+      curl_setopt( $this->curl, CURLOPT_PROXYUSERPWD, config('env.mobile-id-curl-proxy.user-pass') );
     }
 
-    if( getenv( 'SMART_ID_CURL_PROXY' ) ){
-      curl_setopt( $this->curl, CURLOPT_PROXY, getenv( 'SMART_ID_CURL_PROXY' ) );
+    if( config('env.smart-id-curl-proxy.url') ){
+      curl_setopt( $this->curl, CURLOPT_PROXY, config('env.smart-id-curl-proxy.url') );
     }
   }
 
