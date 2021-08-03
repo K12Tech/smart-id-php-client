@@ -1,9 +1,34 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api;
 
 use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
 use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
-use Sk\SmartId\Api\Data\NationalIdentity;
+use Sk\SmartId\Api\Data\SemanticsIdentifier;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SessionStatusRequest;
 use Sk\SmartId\Exception\NotFoundException;
@@ -15,8 +40,8 @@ use Sk\SmartId\Util\Curl;
 class SmartIdRestConnector implements SmartIdConnector
 {
   const AUTHENTICATE_BY_DOCUMENT_NUMBER_PATH = '/authentication/document/{documentNumber}';
-  const AUTHENTICATE_BY_NATIONAL_IDENTITY_PATH = '/authentication/pno/{country}/{nationalIdentityNumber}';
   const SESSION_STATUS_URI = '/session/{sessionId}';
+  const AUTHENTICATION_BY_SEMANTICS_IDENTIFIER_PATH = '/authentication/etsi/{semantics-identifier}';
 
   const RESPONSE_ERROR_CODES = array(
       503 => 'Limit exceeded',
@@ -39,6 +64,8 @@ class SmartIdRestConnector implements SmartIdConnector
    */
   private $curl;
 
+  private $publicSslKeys;
+
   /**
    * @param string $endpointUrl
    */
@@ -60,24 +87,22 @@ class SmartIdRestConnector implements SmartIdConnector
     return $this->postAuthenticationRequest( $url, $request );
   }
 
-  /**
-   * @param NationalIdentity $identity
-   * @param AuthenticationSessionRequest $request
-   * @throws \Exception
-   * @return AuthenticationSessionResponse
-   */
-  public function authenticateWithIdentity( NationalIdentity $identity, AuthenticationSessionRequest $request )
-  {
-    $url = rtrim( $this->endpointUrl, '/' ) . self::AUTHENTICATE_BY_NATIONAL_IDENTITY_PATH;
-    $url = str_replace( array(
-        '{country}',
-        '{nationalIdentityNumber}',
-    ), array(
-        $identity->getCountryCode(),
-        $identity->getNationalIdentityNumber(),
-    ), $url );
-    return $this->postAuthenticationRequest( $url, $request );
-  }
+    /**
+     * @param SemanticsIdentifier $semanticsIdentifier
+     * @param AuthenticationSessionRequest $request
+     * @return AuthenticationSessionResponse
+     * @throws \Exception
+     */
+    function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, AuthenticationSessionRequest $request)
+    {
+        $url = rtrim( $this->endpointUrl, '/' ) . self::AUTHENTICATION_BY_SEMANTICS_IDENTIFIER_PATH;
+        $url = str_replace( array(
+            '{semantics-identifier}'
+        ), array(
+            $semanticsIdentifier->asString()
+        ), $url );
+        return $this->postAuthenticationRequest($url, $request);
+    }
 
   /**
    * @param SessionStatusRequest $request
@@ -115,7 +140,7 @@ class SmartIdRestConnector implements SmartIdConnector
     }
     catch ( NotFoundException $e )
     {
-      throw new UserAccountNotFoundException();
+      throw new UserAccountNotFoundException($e->getMessage());
     }
   }
 
@@ -129,6 +154,7 @@ class SmartIdRestConnector implements SmartIdConnector
   private function postRequest( $url, array $params, $responseType )
   {
     $this->curl = new Curl();
+    $this->curl->setPublicSslKeys($this->publicSslKeys);
     $this->setNetworkInterface( $params );
     $this->curl->curlPost( $url, array(), json_encode( $params ) );
     $this->curl->setCurlParam( CURLOPT_HTTPHEADER, array('content-type: application/json',) );
@@ -145,6 +171,7 @@ class SmartIdRestConnector implements SmartIdConnector
   private function getRequest( $url, array $params, $responseType )
   {
     $this->curl = new Curl();
+    $this->curl->setPublicSslKeys($this->publicSslKeys);
     $this->setNetworkInterface( $params );
     $this->curl->curlGet( $url, $params );
     return $this->request( $url, $responseType );
@@ -206,5 +233,10 @@ class SmartIdRestConnector implements SmartIdConnector
       $this->curl->setCurlParam( CURLOPT_INTERFACE, $params[ 'networkInterface' ] );
       unset( $params[ 'networkInterface' ] );
     }
+  }
+
+  public function setPublicSslKeys(?string $sslKeys)
+  {
+      $this->publicSslKeys = $sslKeys;
   }
 }

@@ -1,10 +1,37 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Util;
+defined('CURLOPT_PINNEDPUBLICKEY') || define('CURLOPT_PINNEDPUBLICKEY', 10230);
 
 use Exception;
 
 class Curl
 {
+
   const
       GET = 1,
       POST = 2,
@@ -19,7 +46,8 @@ class Curl
       $requestMethod = self::GET,
       $importCookies = false,
       $includeHeaders = false,
-      $curlTimeout = 600;
+      $curlTimeout = 600,
+      $server_ssl_public_keys;
 
   /**
    * @throws Exception
@@ -178,6 +206,10 @@ class Curl
     curl_setopt( $this->curl, CURLOPT_FOLLOWLOCATION, $this->followLocation );
     curl_setopt( $this->curl, CURLOPT_TIMEOUT, $this->curlTimeout );
     curl_setopt( $this->curl, CURLOPT_SSL_VERIFYPEER, false );
+    if (isset($this->server_ssl_public_keys) and !empty($this->server_ssl_public_keys)) {
+
+        curl_setopt( $this->curl, CURLOPT_PINNEDPUBLICKEY, $this->server_ssl_public_keys);
+    }
 
     if ( self::POST === $this->requestMethod )
     {
@@ -333,7 +365,22 @@ class Curl
     return false;
   }
 
-  /**
+  public function setPublicSslKeys(?string $publicSslKeys)
+  {
+      $this->server_ssl_public_keys = $publicSslKeys;
+  }
+
+  public function setPublicKeysFromArray(array $public_keys)
+  {
+      $this->server_ssl_public_keys = "";
+      foreach ($public_keys as $public_key)
+      {
+          $this->server_ssl_public_keys .= $public_key.";";
+      }
+      $this->server_ssl_public_keys = substr($this->server_ssl_public_keys, 0, strlen($this->server_ssl_public_keys)-1);
+  }
+
+    /**
    * @param int $option
    * @return array|mixed
    */

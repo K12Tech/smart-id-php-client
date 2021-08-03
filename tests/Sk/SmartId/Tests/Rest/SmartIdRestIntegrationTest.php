@@ -1,4 +1,29 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Tests\Rest;
 
 use PHPUnit\Framework\TestCase;
@@ -6,11 +31,14 @@ use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
 use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
 use Sk\SmartId\Api\Data\DigestCalculator;
 use Sk\SmartId\Api\Data\HashType;
+use Sk\SmartId\Api\Data\Interaction;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SessionStatusCode;
 use Sk\SmartId\Api\Data\SessionStatusRequest;
 use Sk\SmartId\Api\SmartIdConnector;
 use Sk\SmartId\Api\SmartIdRestConnector;
+use Sk\SmartId\Client;
+use Sk\SmartId\Tests\Api\DummyData;
 
 class SmartIdRestIntegrationTest extends TestCase
 {
@@ -21,7 +49,9 @@ class SmartIdRestIntegrationTest extends TestCase
 
   protected function setUp()
   {
-    $this->connector = new SmartIdRestConnector( $GLOBALS[ 'host_url' ] );
+    $this->connector = new SmartIdRestConnector( DummyData::TEST_URL );
+    $client = new Client();
+    $this->connector->setPublicSslKeys($client->getPublicSslKeys());
   }
 
   /**
@@ -48,7 +78,7 @@ class SmartIdRestIntegrationTest extends TestCase
   private function fetchAuthenticationSession()
   {
     $request = $this->createAuthenticationSessionRequest();
-    $authenticationSessionResponse = $this->connector->authenticate( $GLOBALS[ 'document_number' ], $request );
+    $authenticationSessionResponse = $this->connector->authenticate( DummyData::VALID_DOCUMENT_NUMBER, $request );
     $this->assertNotNull( $authenticationSessionResponse );
     $this->assertNotEmpty( $authenticationSessionResponse->getSessionID() );
     return $authenticationSessionResponse;
@@ -60,11 +90,12 @@ class SmartIdRestIntegrationTest extends TestCase
   private function createAuthenticationSessionRequest()
   {
     $authenticationSessionRequest = new AuthenticationSessionRequest();
-    $authenticationSessionRequest->setRelyingPartyUUID( $GLOBALS[ 'relying_party_uuid' ] )
-        ->setRelyingPartyName( $GLOBALS[ 'relying_party_name' ] )
-        ->setCertificateLevel( $GLOBALS[ 'certificate_level' ] )
+    $authenticationSessionRequest
+        ->setRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
+        ->setRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
+        ->setAllowedInteractionsOrder(array(Interaction::ofTypeDisplayTextAndPIN("Hellou")))
         ->setHashType( HashType::SHA512 );
-    $hashInBase64 = $this->calculateHashInBase64( $GLOBALS[ 'data_to_sign' ] );
+    $hashInBase64 = $this->calculateHashInBase64( DummyData::SIGNABLE_TEXT );
     $authenticationSessionRequest->setHash( $hashInBase64 );
     return $authenticationSessionRequest;
   }

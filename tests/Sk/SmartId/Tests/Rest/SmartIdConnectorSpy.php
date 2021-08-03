@@ -1,9 +1,35 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Tests\Rest;
 
 use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
 use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
 use Sk\SmartId\Api\Data\NationalIdentity;
+use Sk\SmartId\Api\Data\SemanticsIdentifier;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SessionStatusRequest;
 use Sk\SmartId\Api\SmartIdConnector;
@@ -21,10 +47,20 @@ class SmartIdConnectorSpy implements SmartIdConnector
    */
   public $documentNumberUsed;
 
+    /**
+     * @var SemanticsIdentifier
+     */
+  public $semanticsIdentifierUsed;
+
   /**
    * @var AuthenticationSessionRequest
    */
   public $authenticationSessionRequestUsed;
+
+  /**
+   * @var SessionStatusRequest
+   */
+  public $sessionStatusRequestUsed;
 
   /**
    * @var NationalIdentity
@@ -54,18 +90,6 @@ class SmartIdConnectorSpy implements SmartIdConnector
   }
 
   /**
-   * @param NationalIdentity $identity
-   * @param AuthenticationSessionRequest $request
-   * @return AuthenticationSessionResponse
-   */
-  public function authenticateWithIdentity( NationalIdentity $identity, AuthenticationSessionRequest $request )
-  {
-    $this->identityUsed = $identity;
-    $this->authenticationSessionRequestUsed = $request;
-    return $this->authenticationSessionResponseToRespond;
-  }
-
-  /**
    * @param SessionStatusRequest $request
    * @throws SessionNotFoundException
    * @return SessionStatus
@@ -73,6 +97,14 @@ class SmartIdConnectorSpy implements SmartIdConnector
   public function getSessionStatus( SessionStatusRequest $request )
   {
     $this->sessionIdUsed = $request->getSessionId();
+    $this->sessionStatusRequestUsed = $request;
     return $this->sessionStatusToRespond;
   }
+
+    function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, AuthenticationSessionRequest $request)
+    {
+        $this->semanticsIdentifierUsed = $semanticsIdentifier;
+        $this->authenticationSessionRequestUsed = $request;
+        return $this->authenticationSessionResponseToRespond;
+    }
 }
