@@ -1,10 +1,37 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Util;
+defined('CURLOPT_PINNEDPUBLICKEY') || define('CURLOPT_PINNEDPUBLICKEY', 10230);
 
 use Exception;
 
 class Curl
 {
+
   const
       GET = 1,
       POST = 2,
@@ -19,7 +46,8 @@ class Curl
       $requestMethod = self::GET,
       $importCookies = false,
       $includeHeaders = false,
-      $curlTimeout = 600;
+      $curlTimeout = 600,
+      $server_ssl_public_keys;
 
   /**
    * @throws Exception
@@ -40,7 +68,7 @@ class Curl
    *
    * @return Curl
    */
-  public function curlGet( $url, array $params = array() )
+  public function curlGet(string $url, array $params = array() ): Curl
   {
     if ( count( $params ) )
     {
@@ -57,9 +85,9 @@ class Curl
    * @param $followLocation
    * @return Curl
    */
-  public function followLocation( $followLocation )
+  public function followLocation( $followLocation ): Curl
   {
-    $this->followLocation = ( (bool)$followLocation ? 1 : 0 );
+    $this->followLocation = ( $followLocation ? 1 : 0 );
 
     return $this;
   }
@@ -69,7 +97,7 @@ class Curl
    * @param $paramsValue
    * @return Curl
    */
-  public function setCurlParam( $paramsId, $paramsValue )
+  public function setCurlParam( $paramsId, $paramsValue ): Curl
   {
     curl_setopt( $this->curl, $paramsId, $paramsValue );
 
@@ -82,7 +110,7 @@ class Curl
    * @param null $rawData
    * @return Curl
    */
-  public function curlPost( $url, array $postData = array(), $rawData = null )
+  public function curlPost(string $url, array $postData = array(), $rawData = null ): Curl
   {
     $this->setCurlParam( CURLOPT_URL, $url );
     $this->requestMethod = self::POST;
@@ -98,7 +126,7 @@ class Curl
    * @param null $rawData
    * @return Curl
    */
-  public function curlPut( $url, array $postData = array(), $rawData = null )
+  public function curlPut(string $url, array $postData = array(), $rawData = null ): Curl
   {
     $this->setCurlParam( CURLOPT_URL, $url );
     $this->requestMethod = self::PUT;
@@ -111,7 +139,7 @@ class Curl
   /**
    * @param string $savePath
    */
-  public function download( $savePath )
+  public function download(string $savePath )
   {
     $file = fopen( $savePath, 'w' );
 
@@ -125,20 +153,18 @@ class Curl
   }
 
   /**
-   * @return mixed
+   * @return bool|string
    */
   public function fetch()
   {
     curl_setopt( $this->curl, CURLOPT_RETURNTRANSFER, 1 );
 
-    $result = $this->sendRequest();
-
-    return $result;
+      return $this->sendRequest();
   }
 
-  public function getCookies()
+  public function getCookies(): array
   {
-    $this->importCookies( true );
+    $this->importCookies();
 
     curl_setopt( $this->curl, CURLOPT_RETURNTRANSFER, 1 );
 
@@ -170,6 +196,10 @@ class Curl
     curl_setopt( $this->curl, CURLOPT_FOLLOWLOCATION, $this->followLocation );
     curl_setopt( $this->curl, CURLOPT_TIMEOUT, $this->curlTimeout );
     curl_setopt( $this->curl, CURLOPT_SSL_VERIFYPEER, false );
+    if (isset($this->server_ssl_public_keys) and !empty($this->server_ssl_public_keys)) {
+
+        curl_setopt( $this->curl, CURLOPT_PINNEDPUBLICKEY, $this->server_ssl_public_keys);
+    }
 
     if ( self::POST === $this->requestMethod )
     {
@@ -244,7 +274,7 @@ class Curl
   /**
    * If cookies were sent, save them
    */
-  public function exportCookies( $source )
+  public function exportCookies( $source ): array
   {
     $cookies = array();
 
@@ -259,7 +289,7 @@ class Curl
     return $cookies;
   }
 
-  public function getPostFieldsString()
+  public function getPostFieldsString(): string
   {
     if ( !empty( $this->rawData ) )
     {
@@ -273,12 +303,12 @@ class Curl
    * @param array $inputArray
    * @return string
    */
-  public function generatePostFields( array $inputArray )
+  public function generatePostFields( array $inputArray ): string
   {
     return http_build_query( $inputArray );
   }
 
-  public function generateCookies( $inputArray )
+  public function generateCookies( $inputArray ): string
   {
     $cookies = array();
 
@@ -302,7 +332,7 @@ class Curl
     }
   }
 
-  public function getCurlTimeout()
+  public function getCurlTimeout(): int
   {
     return $this->curlTimeout;
   }
@@ -325,7 +355,22 @@ class Curl
     return false;
   }
 
-  /**
+  public function setPublicSslKeys(?string $publicSslKeys)
+  {
+      $this->server_ssl_public_keys = $publicSslKeys;
+  }
+
+  public function setPublicKeysFromArray(array $public_keys)
+  {
+      $this->server_ssl_public_keys = "";
+      foreach ($public_keys as $public_key)
+      {
+          $this->server_ssl_public_keys .= $public_key.";";
+      }
+      $this->server_ssl_public_keys = substr($this->server_ssl_public_keys, 0, strlen($this->server_ssl_public_keys)-1);
+  }
+
+    /**
    * @param int $option
    * @return array|mixed
    */

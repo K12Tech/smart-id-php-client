@@ -1,4 +1,29 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api\Data;
 
 class SignableData
@@ -16,7 +41,7 @@ class SignableData
   /**
    * @param string $dataToSign
    */
-  public function __construct( $dataToSign )
+  public function __construct(string $dataToSign )
   {
     $this->dataToSign = $dataToSign;
   }
@@ -24,7 +49,7 @@ class SignableData
   /**
    * @return string
    */
-  public function calculateHashInBase64()
+  public function calculateHashInBase64(): string
   {
     $digest = $this->calculateHash();
     return base64_encode( $digest );
@@ -33,7 +58,7 @@ class SignableData
   /**
    * @return string
    */
-  public function calculateHash()
+  public function calculateHash(): string
   {
     return DigestCalculator::calculateDigest( $this->dataToSign, $this->hashType );
   }
@@ -42,7 +67,7 @@ class SignableData
    * @param string $hashType
    * @return $this
    */
-  public function setHashType( $hashType )
+  public function setHashType(string $hashType ): SignableData
   {
     $this->hashType = $hashType;
     return $this;
@@ -51,7 +76,7 @@ class SignableData
   /**
    * @return string
    */
-  public function getHashType()
+  public function getHashType(): string
   {
     return $this->hashType;
   }
@@ -59,7 +84,7 @@ class SignableData
   /**
    * @return bool
    */
-  public function areFieldsFilled()
+  public function areFieldsFilled(): bool
   {
     return isset( $this->hashType )
            && isset( $this->dataToSign )
@@ -70,7 +95,7 @@ class SignableData
   /**
    * @return string
    */
-  public function getDataToSign()
+  public function getDataToSign(): string
   {
     return $this->dataToSign;
   }

@@ -1,4 +1,29 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api\Data;
 
 use Sk\SmartId\Exception\TechnicalErrorException;
@@ -46,9 +71,24 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   private $state;
 
   /**
+   * @var array
+   */
+  private $ignoredProperties;
+
+  /**
+   * @var string
+   */
+  private $interactionFlowUsed;
+
+  /**
+   * @var string
+   */
+  private $documentNumber;
+
+  /**
    * @return string
    */
-  public function getEndResult()
+  public function getEndResult(): ?string
   {
     return $this->endResult;
   }
@@ -57,7 +97,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string $endResult
    * @return $this
    */
-  public function setEndResult( $endResult )
+  public function setEndResult(string $endResult ): SmartIdAuthenticationResponse
   {
     $this->endResult = $endResult;
     return $this;
@@ -66,7 +106,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getSignedData()
+  public function getSignedData(): string
   {
     return $this->signedData;
   }
@@ -75,7 +115,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string $signedData
    * @return $this
    */
-  public function setSignedData( $signedData )
+  public function setSignedData(string $signedData ): SmartIdAuthenticationResponse
   {
     $this->signedData = $signedData;
     return $this;
@@ -84,16 +124,16 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getValueInBase64()
+  public function getValueInBase64(): string
   {
     return $this->valueInBase64;
   }
 
   /**
-   * @param string $valueInBase64
+   * @param string|null $valueInBase64
    * @return $this
    */
-  public function setValueInBase64( $valueInBase64 )
+  public function setValueInBase64(?string $valueInBase64 ): SmartIdAuthenticationResponse
   {
     $this->valueInBase64 = $valueInBase64;
     return $this;
@@ -102,16 +142,16 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getAlgorithmName()
+  public function getAlgorithmName(): string
   {
     return $this->algorithmName;
   }
 
   /**
-   * @param string $algorithmName
+   * @param string|null $algorithmName
    * @return $this
    */
-  public function setAlgorithmName( $algorithmName )
+  public function setAlgorithmName(?string $algorithmName ): SmartIdAuthenticationResponse
   {
     $this->algorithmName = $algorithmName;
     return $this;
@@ -120,7 +160,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getCertificate()
+  public function getCertificate(): ?string
   {
     return $this->certificate;
   }
@@ -128,7 +168,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return array
    */
-  public function getParsedCertificate()
+  public function getParsedCertificate(): array
   {
     return CertificateParser::parseX509Certificate( $this->certificate );
   }
@@ -136,17 +176,17 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return AuthenticationCertificate
    */
-  public function getCertificateInstance()
+  public function getCertificateInstance(): AuthenticationCertificate
   {
     $parsed = CertificateParser::parseX509Certificate( $this->certificate );
     return new AuthenticationCertificate( $parsed );
   }
 
   /**
-   * @param string $certificate
+   * @param string|null $certificate
    * @return $this
    */
-  public function setCertificate( $certificate )
+  public function setCertificate(?string $certificate ): SmartIdAuthenticationResponse
   {
     $this->certificate = $certificate;
     return $this;
@@ -155,16 +195,16 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getCertificateLevel()
+  public function getCertificateLevel(): string
   {
     return $this->certificateLevel;
   }
 
   /**
-   * @param string $certificateLevel
+   * @param string|null $certificateLevel
    * @return $this
    */
-  public function setCertificateLevel( $certificateLevel )
+  public function setCertificateLevel(?string $certificateLevel ): SmartIdAuthenticationResponse
   {
     $this->certificateLevel = $certificateLevel;
     return $this;
@@ -173,16 +213,16 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getRequestedCertificateLevel()
+  public function getRequestedCertificateLevel(): ?string
   {
     return $this->requestedCertificateLevel;
   }
 
   /**
-   * @param string $requestedCertificateLevel
+   * @param string|null $requestedCertificateLevel
    * @return $this
    */
-  public function setRequestedCertificateLevel( $requestedCertificateLevel )
+  public function setRequestedCertificateLevel(?string $requestedCertificateLevel ): SmartIdAuthenticationResponse
   {
     $this->requestedCertificateLevel = $requestedCertificateLevel;
     return $this;
@@ -192,7 +232,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @throws TechnicalErrorException
    * @return string
    */
-  public function getValue()
+  public function getValue(): string
   {
     if ( base64_decode( $this->valueInBase64, true ) === false )
     {
@@ -206,7 +246,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string $state
    * @return $this
    */
-  public function setState( $state )
+  public function setState(string $state ): SmartIdAuthenticationResponse
   {
     $this->state = $state;
     return $this;
@@ -215,16 +255,59 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   /**
    * @return string
    */
-  public function getState()
+  public function getState(): string
   {
     return $this->state;
+  }
+
+    /**
+     * @param array|null $ignoredProperties
+     * @return SmartIdAuthenticationResponse
+     */
+  public function setIgnoredProperties(?array $ignoredProperties): SmartIdAuthenticationResponse
+  {
+      $this->ignoredProperties = $ignoredProperties;
+      return $this;
+  }
+
+  /**
+   * @return string
+   */
+  public function getInteractionFlowUsed(): string
+  {
+      return $this->interactionFlowUsed;
+  }
+
+  /**
+   * @param string|null $interactionFlowUsed
+   * @return SmartIdAuthenticationResponse
+   */
+  public function setInteractionFlowUsed(?string $interactionFlowUsed): SmartIdAuthenticationResponse
+  {
+      $this->interactionFlowUsed = $interactionFlowUsed;
+      return $this;
   }
 
   /**
    * @return bool
    */
-  public function isRunningState()
+  public function isRunningState(): bool
   {
     return strcasecmp( SessionStatusCode::RUNNING, $this->state ) == 0;
   }
+
+  public function setDocumentNumber(?string $documentNumber): SmartIdAuthenticationResponse
+  {
+    $this->documentNumber = $documentNumber;
+    return $this;
+  }
+
+  /**
+   * @return string
+   */
+  public function getDocumentNumber(): ?string
+  {
+    return $this->documentNumber;
+  }
+
 }

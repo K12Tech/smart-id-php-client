@@ -1,4 +1,29 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api\Data;
 
 class SmartIdAuthenticationResult
@@ -27,7 +52,7 @@ class SmartIdAuthenticationResult
   /**
    * @return AuthenticationIdentity
    */
-  public function getAuthenticationIdentity()
+  public function getAuthenticationIdentity(): AuthenticationIdentity
   {
     return $this->authenticationIdentity;
   }
@@ -36,7 +61,7 @@ class SmartIdAuthenticationResult
    * @param AuthenticationIdentity $authenticationIdentity
    * @return $this
    */
-  public function setAuthenticationIdentity( AuthenticationIdentity $authenticationIdentity )
+  public function setAuthenticationIdentity( AuthenticationIdentity $authenticationIdentity ): SmartIdAuthenticationResult
   {
     $this->authenticationIdentity = $authenticationIdentity;
     return $this;
@@ -45,7 +70,7 @@ class SmartIdAuthenticationResult
   /**
    * @return bool
    */
-  public function isValid()
+  public function isValid(): bool
   {
     return $this->valid;
   }
@@ -54,7 +79,7 @@ class SmartIdAuthenticationResult
    * @param boolean $valid
    * @return $this
    */
-  public function setValid( $valid )
+  public function setValid(bool $valid ): SmartIdAuthenticationResult
   {
     $this->valid = $valid;
     return $this;
@@ -64,7 +89,7 @@ class SmartIdAuthenticationResult
    * @param string $error
    * @return $this
    */
-  public function addError( $error )
+  public function addError(string $error ): SmartIdAuthenticationResult
   {
     $this->errors[] = $error;
     return $this;
@@ -73,7 +98,7 @@ class SmartIdAuthenticationResult
   /**
    * @return array
    */
-  public function getErrors()
+  public function getErrors(): array
   {
     return $this->errors;
   }

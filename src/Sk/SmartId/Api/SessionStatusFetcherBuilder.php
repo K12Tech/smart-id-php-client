@@ -1,4 +1,29 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api;
 
 use Sk\SmartId\Api\Data\AuthenticationHash;
@@ -55,7 +80,7 @@ class SessionStatusFetcherBuilder
    * @param string $sessionId
    * @return $this
    */
-  public function withSessionId( $sessionId )
+  public function withSessionId(string $sessionId ): SessionStatusFetcherBuilder
   {
     $this->sessionId = $sessionId;
     return $this;
@@ -65,7 +90,7 @@ class SessionStatusFetcherBuilder
    * @param SignableData $dataToSign
    * @return $this
    */
-  public function withSignableData( SignableData $dataToSign )
+  public function withSignableData( SignableData $dataToSign ): SessionStatusFetcherBuilder
   {
     $this->dataToSign = $dataToSign;
     return $this;
@@ -75,18 +100,17 @@ class SessionStatusFetcherBuilder
    * @param AuthenticationHash $authenticationHash
    * @return $this
    */
-  public function withAuthenticationHash( AuthenticationHash $authenticationHash )
+  public function withAuthenticationHash( AuthenticationHash $authenticationHash ): SessionStatusFetcherBuilder
   {
     $this->authenticationHash = $authenticationHash;
     return $this;
   }
 
   /**
-   * @param int $sessionStatusResponseSocketTimeoutMs
-   * @throws TechnicalErrorException
+   * @param int|null $sessionStatusResponseSocketTimeoutMs
    * @return $this
    */
-  public function withSessionStatusResponseSocketTimeoutMs( $sessionStatusResponseSocketTimeoutMs )
+  public function withSessionStatusResponseSocketTimeoutMs( ?int $sessionStatusResponseSocketTimeoutMs): SessionStatusFetcherBuilder
   {
     if ( $sessionStatusResponseSocketTimeoutMs < 0 )
     {
@@ -97,10 +121,10 @@ class SessionStatusFetcherBuilder
   }
 
   /**
-   * @param string $networkInterface
+   * @param string|null $networkInterface
    * @return $this
    */
-  public function withNetworkInterface( $networkInterface )
+  public function withNetworkInterface(?string $networkInterface ): SessionStatusFetcherBuilder
   {
     $this->networkInterface = $networkInterface;
     return $this;
@@ -119,7 +143,7 @@ class SessionStatusFetcherBuilder
   /**
    * @return Data\SmartIdAuthenticationResponse
    */
-  public function getAuthenticationResponse()
+  public function getAuthenticationResponse(): Data\SmartIdAuthenticationResponse
   {
     return $this->build()
         ->getAuthenticationResponse();
@@ -128,7 +152,7 @@ class SessionStatusFetcherBuilder
   /**
    * @return SessionStatusFetcher
    */
-  public function build()
+  public function build(): SessionStatusFetcher
   {
     $sessionStatusFetcher = new SessionStatusFetcher( $this->connector );
     $sessionStatusFetcher->setSessionId( $this->sessionId )

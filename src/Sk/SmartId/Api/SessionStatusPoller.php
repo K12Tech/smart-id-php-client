@@ -1,15 +1,45 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api;
 
 use Sk\SmartId\Api\Data\SessionEndResultCode;
 use Sk\SmartId\Api\Data\SessionStatus;
-use Sk\SmartId\Api\Data\SessionStatusCode;
-use Sk\SmartId\Api\Data\SessionStatusRequest;
 use Sk\SmartId\Exception\DocumentUnusableException;
-use Sk\SmartId\Exception\InterruptedException;
+use Sk\SmartId\Exception\RequiredInteractionNotSupportedByAppException;
 use Sk\SmartId\Exception\SessionTimeoutException;
 use Sk\SmartId\Exception\TechnicalErrorException;
+use Sk\SmartId\Exception\UnprocessableSmartIdResponseException;
+use Sk\SmartId\Exception\UserRefusedCertChoiceException;
+use Sk\SmartId\Exception\UserRefusedConfirmationMessageException;
+use Sk\SmartId\Exception\UserRefusedConfirmationMessageWithVcChoiceException;
+use Sk\SmartId\Exception\UserRefusedDisplayTextAndPinException;
 use Sk\SmartId\Exception\UserRefusedException;
+use Sk\SmartId\Exception\UserRefusedVcChoiceException;
+use Sk\SmartId\Exception\UserSelectedWrongVerificationCodeException;
 
 class SessionStatusPoller
 {
@@ -28,7 +58,12 @@ class SessionStatusPoller
    * In milliseconds
    * @var int
    */
-  private $sessionStatusResponseSocketTimeoutMs;
+  private $sessionStatusResponseSocketTimeoutMs = 0;
+
+    /**
+     * @var string
+     */
+  private $networkInterface;
 
   /**
    * @param SmartIdConnector $connector
@@ -40,28 +75,21 @@ class SessionStatusPoller
 
   /**
    * @param string $sessionId
-   * @throws TechnicalErrorException
    * @return SessionStatus|null
+   * @throws TechnicalErrorException
    */
-  public function fetchFinalSessionStatus( $sessionId )
+  public function fetchFinalSessionStatus( string $sessionId ): ?SessionStatus
   {
-    try
-    {
       $sessionStatus = $this->pollForFinalSessionStatus( $sessionId );
       $this->validateResult( $sessionStatus );
       return $sessionStatus;
-    }
-    catch ( InterruptedException $e )
-    {
-      throw new TechnicalErrorException( 'Failed to poll session status: ' . $e->getMessage() );
-    }
   }
 
   /**
    * @param string $sessionId
    * @return SessionStatus|null
    */
-  private function pollForFinalSessionStatus( $sessionId )
+  private function pollForFinalSessionStatus(string $sessionId ): ?SessionStatus
   {
     /** @var SessionStatus $sessionStatus */
     $sessionStatus = null;
@@ -84,7 +112,7 @@ class SessionStatusPoller
    * @throws TechnicalErrorException
    * @throws UserRefusedException
    * @throws SessionTimeoutException
-   * @throws DocumentUnusableException
+   * @throws UnprocessableSmartIdResponseException
    */
   private function validateResult( SessionStatus $sessionStatus )
   {
@@ -107,6 +135,34 @@ class SessionStatusPoller
     {
       throw new DocumentUnusableException();
     }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::REQUIRED_INTERACTION_NOT_SUPPORTED_BY_APP) == 0 )
+    {
+        throw new RequiredInteractionNotSupportedByAppException();
+    }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::USER_REFUSED_DISPLAYTEXTANDPIN) == 0 )
+    {
+        throw new UserRefusedDisplayTextAndPinException();
+    }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::USER_REFUSED_VC_CHOICE) == 0 )
+    {
+        throw new UserRefusedVcChoiceException();
+    }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::USER_REFUSED_CONFIRMATIONMESSAGE) == 0 )
+    {
+        throw new UserRefusedConfirmationMessageException();
+    }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::USER_REFUSED_CONFIRMATIONMESSAGE_WITH_VC_CHOICE) == 0 )
+    {
+        throw new UserRefusedConfirmationMessageWithVcChoiceException();
+    }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::USER_REFUSED_CERT_CHOICE) == 0 )
+    {
+        throw new UserRefusedCertChoiceException();
+    }
+    else if ( strcasecmp( $endResult, SessionEndResultCode::WRONG_VC) == 0 )
+    {
+        throw new UserSelectedWrongVerificationCodeException();
+    }
     else if ( strcasecmp( $endResult, SessionEndResultCode::OK ) != 0 )
     {
       throw new TechnicalErrorException( 'Session status end result is \'' . $endResult . '\'' );
@@ -115,10 +171,10 @@ class SessionStatusPoller
 
   /**
    * @param int $pollingSleepTimeoutMs
-   * @throws TechnicalErrorException
    * @return $this
+   * @throws TechnicalErrorException
    */
-  public function setPollingSleepTimeoutMs( $pollingSleepTimeoutMs )
+  public function setPollingSleepTimeoutMs( int $pollingSleepTimeoutMs ): SessionStatusPoller
   {
     if ( $pollingSleepTimeoutMs < 0 )
     {
@@ -132,18 +188,17 @@ class SessionStatusPoller
    * @param int $milliseconds
    * @return int
    */
-  private function convertMsToMicros( $milliseconds )
+  private function convertMsToMicros(int $milliseconds )
   {
     $conversionResult = $milliseconds * pow( 10, 3 );
     return $conversionResult > PHP_INT_MAX ? PHP_INT_MAX : $conversionResult;
   }
 
   /**
-   * @param int $sessionStatusResponseSocketTimeoutMs
-   * @throws TechnicalErrorException
+   * @param int|null $sessionStatusResponseSocketTimeoutMs
    * @return $this
    */
-  public function setSessionStatusResponseSocketTimeoutMs( $sessionStatusResponseSocketTimeoutMs )
+  public function setSessionStatusResponseSocketTimeoutMs( ?int $sessionStatusResponseSocketTimeoutMs ): SessionStatusPoller
   {
     if ( $sessionStatusResponseSocketTimeoutMs < 0 )
     {
@@ -157,11 +212,19 @@ class SessionStatusPoller
    * @param string $sessionId
    * @return SessionStatusFetcher
    */
-  private function createSessionStatusFetcher( $sessionId )
+  private function createSessionStatusFetcher(string $sessionId ): SessionStatusFetcher
   {
     $sessionStatusFetcherBuilder = new SessionStatusFetcherBuilder( $this->connector );
-    return $sessionStatusFetcherBuilder->withSessionId( $sessionId )
+    return $sessionStatusFetcherBuilder
+        ->withSessionId( $sessionId )
         ->withSessionStatusResponseSocketTimeoutMs( $this->sessionStatusResponseSocketTimeoutMs )
+        ->withNetworkInterface($this->networkInterface)
         ->build();
   }
+
+  public function withNetworkInterface( $networkInterface ): SessionStatusPoller
+  {
+        $this->networkInterface = $networkInterface;
+        return $this;
+    }
 }

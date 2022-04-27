@@ -1,4 +1,29 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api\Data;
 
 class AuthenticationCertificate extends PropertyMapper
@@ -86,7 +111,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getName()
+  public function getName(): string
   {
     return $this->name;
   }
@@ -95,7 +120,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $name
    * @return $this
    */
-  public function setName( $name )
+  public function setName(string $name ): AuthenticationCertificate
   {
     $this->name = $name;
     return $this;
@@ -104,16 +129,16 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return AuthenticationCertificateSubject
    */
-  public function getSubject()
+  public function getSubject(): AuthenticationCertificateSubject
   {
     return $this->subject;
   }
 
-  /**
-   * @param AuthenticationCertificateSubject $subject
-   * @return $this
-   */
-  public function setSubject( AuthenticationCertificateSubject $subject = null )
+    /**
+     * @param AuthenticationCertificateSubject|null $subject
+     * @return $this
+     */
+  public function setSubject( AuthenticationCertificateSubject $subject = null ): AuthenticationCertificate
   {
     $this->subject = $subject;
     return $this;
@@ -122,7 +147,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getHash()
+  public function getHash(): string
   {
     return $this->hash;
   }
@@ -131,7 +156,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $hash
    * @return $this
    */
-  public function setHash( $hash )
+  public function setHash(string $hash ): AuthenticationCertificate
   {
     $this->hash = $hash;
     return $this;
@@ -140,16 +165,16 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return AuthenticationCertificateIssuer
    */
-  public function getIssuer()
+  public function getIssuer(): AuthenticationCertificateIssuer
   {
     return $this->issuer;
   }
 
-  /**
-   * @param AuthenticationCertificateIssuer $issuer
-   * @return $this
-   */
-  public function setIssuer( AuthenticationCertificateIssuer $issuer = null )
+    /**
+     * @param AuthenticationCertificateIssuer|null $issuer
+     * @return $this
+     */
+  public function setIssuer( AuthenticationCertificateIssuer $issuer = null ): AuthenticationCertificate
   {
     $this->issuer = $issuer;
     return $this;
@@ -158,7 +183,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return int
    */
-  public function getVersion()
+  public function getVersion(): int
   {
     return $this->version;
   }
@@ -167,7 +192,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param int $version
    * @return $this
    */
-  public function setVersion( $version )
+  public function setVersion(int $version ): AuthenticationCertificate
   {
     $this->version = $version;
     return $this;
@@ -176,7 +201,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getSerialNumber()
+  public function getSerialNumber(): string
   {
     return $this->serialNumber;
   }
@@ -185,7 +210,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $serialNumber
    * @return $this
    */
-  public function setSerialNumber( $serialNumber )
+  public function setSerialNumber(string $serialNumber ): AuthenticationCertificate
   {
     $this->serialNumber = $serialNumber;
     return $this;
@@ -194,7 +219,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getSerialNumberHex()
+  public function getSerialNumberHex(): string
   {
     return $this->serialNumberHex;
   }
@@ -203,7 +228,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $serialNumberHex
    * @return $this
    */
-  public function setSerialNumberHex( $serialNumberHex )
+  public function setSerialNumberHex(string $serialNumberHex ): AuthenticationCertificate
   {
     $this->serialNumberHex = $serialNumberHex;
     return $this;
@@ -212,7 +237,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getValidFrom()
+  public function getValidFrom(): string
   {
     return $this->validFrom;
   }
@@ -221,7 +246,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $validFrom
    * @return $this
    */
-  public function setValidFrom( $validFrom )
+  public function setValidFrom(string $validFrom ): AuthenticationCertificate
   {
     $this->validFrom = $validFrom;
     return $this;
@@ -230,7 +255,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getValidTo()
+  public function getValidTo(): string
   {
     return $this->validTo;
   }
@@ -239,7 +264,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $validTo
    * @return $this
    */
-  public function setValidTo( $validTo )
+  public function setValidTo(string $validTo ): AuthenticationCertificate
   {
     $this->validTo = $validTo;
     return $this;
@@ -248,7 +273,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return int
    */
-  public function getValidFromTimeT()
+  public function getValidFromTimeT(): int
   {
     return $this->validFromTimeT;
   }
@@ -257,7 +282,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param int $validFromTimeT
    * @return $this
    */
-  public function setValidFromTimeT( $validFromTimeT )
+  public function setValidFromTimeT(int $validFromTimeT ): AuthenticationCertificate
   {
     $this->validFromTimeT = $validFromTimeT;
     return $this;
@@ -266,7 +291,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return int
    */
-  public function getValidToTimeT()
+  public function getValidToTimeT(): int
   {
     return $this->validToTimeT;
   }
@@ -275,7 +300,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param int $validToTimeT
    * @return $this
    */
-  public function setValidToTimeT( $validToTimeT )
+  public function setValidToTimeT(int $validToTimeT ): AuthenticationCertificate
   {
     $this->validToTimeT = $validToTimeT;
     return $this;
@@ -284,7 +309,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return string
    */
-  public function getSignatureTypeSN()
+  public function getSignatureTypeSN(): string
   {
     return $this->signatureTypeSN;
   }
@@ -293,7 +318,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $signatureTypeSN
    * @return $this
    */
-  public function setSignatureTypeSN( $signatureTypeSN )
+  public function setSignatureTypeSN(string $signatureTypeSN ): AuthenticationCertificate
   {
     $this->signatureTypeSN = $signatureTypeSN;
     return $this;
@@ -311,7 +336,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param string $signatureTypeLN
    * @return $this
    */
-  public function setSignatureTypeLN( $signatureTypeLN )
+  public function setSignatureTypeLN(string $signatureTypeLN ): AuthenticationCertificate
   {
     $this->signatureTypeLN = $signatureTypeLN;
     return $this;
@@ -320,7 +345,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return int
    */
-  public function getSignatureTypeNID()
+  public function getSignatureTypeNID(): int
   {
     return $this->signatureTypeNID;
   }
@@ -329,7 +354,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param int $signatureTypeNID
    * @return $this
    */
-  public function setSignatureTypeNID( $signatureTypeNID )
+  public function setSignatureTypeNID(int $signatureTypeNID ): AuthenticationCertificate
   {
     $this->signatureTypeNID = $signatureTypeNID;
     return $this;
@@ -338,7 +363,7 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return array
    */
-  public function getPurposes()
+  public function getPurposes(): array
   {
     return $this->purposes;
   }
@@ -347,7 +372,7 @@ class AuthenticationCertificate extends PropertyMapper
    * @param array $purposes
    * @return $this
    */
-  public function setPurposes( array $purposes = array() )
+  public function setPurposes( array $purposes = array() ): AuthenticationCertificate
   {
     $this->purposes = $purposes;
     return $this;
@@ -356,16 +381,16 @@ class AuthenticationCertificate extends PropertyMapper
   /**
    * @return AuthenticationCertificateExtensions
    */
-  public function getExtensions()
+  public function getExtensions(): AuthenticationCertificateExtensions
   {
     return $this->extensions;
   }
 
-  /**
-   * @param AuthenticationCertificateExtensions $extensions
-   * @return $this
-   */
-  public function setExtensions( AuthenticationCertificateExtensions $extensions = null )
+    /**
+     * @param AuthenticationCertificateExtensions|null $extensions
+     * @return $this
+     */
+  public function setExtensions( AuthenticationCertificateExtensions $extensions = null ): AuthenticationCertificate
   {
     $this->extensions = $extensions;
     return $this;

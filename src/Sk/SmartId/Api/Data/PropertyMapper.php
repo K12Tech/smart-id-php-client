@@ -1,7 +1,33 @@
 <?php
+/*-
+ * #%L
+ * Smart ID sample PHP client
+ * %%
+ * Copyright (C) 2018 - 2019 SK ID Solutions AS
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 namespace Sk\SmartId\Api\Data;
 
 use Exception;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -10,7 +36,7 @@ abstract class PropertyMapper
   /**
    * @param array $data
    */
-  public function __construct( $data = array() )
+  public function __construct(array $data = array() )
   {
     if ( !empty( $data ) )
     {
@@ -21,10 +47,10 @@ abstract class PropertyMapper
   /**
    * @param string $key
    * @param array $arguments
-   * @throws Exception
    * @return mixed
+   * @throws Exception
    */
-  public function __call( $key, array $arguments )
+  public function __call(string $key, array $arguments )
   {
     if ( method_exists( $this, $key ) )
     {
@@ -66,12 +92,13 @@ abstract class PropertyMapper
     throw new Exception( 'Undefined method ' . $key . "!" );
   }
 
-  /**
-   * @param string $key
-   * @param mixed $value
-   * @return $this
-   */
-  public function __set( $key, $value )
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     * @throws ReflectionException
+     */
+  public function __set(string $key, $value )
   {
     $alternativeKey = ucwords( $key, '_' );
     $alternativeKey = str_replace( '_', '', $alternativeKey );
@@ -80,12 +107,12 @@ abstract class PropertyMapper
     if ( property_exists( $this, $key ) || property_exists( $this, $alternativeKey ) )
     {
       $resultingKey = property_exists( $this, $key ) ? $key : $alternativeKey;
-      $camelizedName = 'set' . $this->camelize( $resultingKey );
+      $camelCasedName = 'set' . $this->toCamelCase( $resultingKey );
 
-      if ( method_exists( $this, $camelizedName ) )
+      if ( method_exists( $this, $camelCasedName ) )
       {
-        $result = $this->prepareValue( $camelizedName, $value );
-        $this->{$camelizedName}( $result );
+        $result = $this->prepareValue( $camelCasedName, $value );
+        $this->{$camelCasedName}( $result );
       }
       else
       {
@@ -96,21 +123,24 @@ abstract class PropertyMapper
     return $this;
   }
 
-  /**
-   * @param string $method
-   * @param array|mixed $value
-   * @return mixed
-   */
-  private function prepareValue( $method, $value )
+    /**
+     * @param string $methodParam
+     * @param array|mixed $value
+     * @return mixed
+     * @throws ReflectionException
+     */
+  private function prepareValue(string $methodParam, $value )
   {
     if ( is_array( $value ) )
     {
-      $Method = new ReflectionMethod( $this, $method );
-      if ( $Method->getParameters()[0]->getClass() === null )
+      $reflectionMethod = new ReflectionMethod( $this, $methodParam );
+
+      $type = $reflectionMethod->getParameters()[0]->getType();
+      if ( $type === null || $type->isBuiltin() )
       {
         return $value;
       }
-      $class = $Method->getParameters()[0]->getClass()->getName();
+      $class = $type->getName();
       $result = new $class( $value );
     }
     else
@@ -122,14 +152,14 @@ abstract class PropertyMapper
 
   /**
    * @param string $key
-   * @throws Exception
    * @return mixed
+   * @throws Exception
    */
-  public function __get( $key )
+  public function __get( string $key )
   {
     if ( property_exists( $this, $key ) )
     {
-      $camelizedName = 'get' . $this->camelize( $key );
+      $camelizedName = 'get' . $this->toCamelCase( $key );
 
       if ( method_exists( $this, $camelizedName ) )
       {
@@ -146,10 +176,11 @@ abstract class PropertyMapper
     }
   }
 
-  /**
-   * @return array
-   */
-  public function toArray()
+    /**
+     * @return array
+     * @throws ReflectionException
+     */
+  public function toArray(): array
   {
     $values = get_object_vars( $this );
 
@@ -170,7 +201,7 @@ abstract class PropertyMapper
    * @param array $array
    * @return $this
    */
-  public function fromArray( array $array )
+  public function fromArray( array $array ): PropertyMapper
   {
     foreach ( $array as $key => $value )
     {
@@ -184,7 +215,7 @@ abstract class PropertyMapper
    * @param string|array $word
    * @return string|array
    */
-  private function camelize( $word )
+  private function toCamelCase($word )
   {
     return preg_replace_callback( '#(^|_)([a-z])#', function( array $matches )
     {
